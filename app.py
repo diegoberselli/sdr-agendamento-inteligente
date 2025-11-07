@@ -5,7 +5,11 @@ from pydantic import BaseModel
 from agent.sdr_agent import SDRAgent
 
 app = FastAPI(title="SDR Agent - Elite Dev IA")
-sdr = SDRAgent()
+
+try:
+    sdr = SDRAgent()
+except Exception as e:
+    sdr = None
 
 
 class ChatMessage(BaseModel):
@@ -224,7 +228,25 @@ async def get_chat():
 @app.post("/chat")
 async def chat_endpoint(chat_data: ChatMessage):
     try:
-        response = sdr.processar_conversa(chat_data.message, chat_data.history)
+        if sdr is None:
+            return {"response": "❌ SDR Agent não inicializado. Verifique as configurações.", "history": chat_data.history}
+        
+        # Converter histórico do formato FastAPI para formato SDR Agent
+        historico_convertido = []
+        for i in range(0, len(chat_data.history), 2):
+            if i + 1 < len(chat_data.history):
+                user_msg = chat_data.history[i].get('content', '') if isinstance(chat_data.history[i], dict) else str(chat_data.history[i])
+                assistant_msg = chat_data.history[i + 1].get('content', '') if isinstance(chat_data.history[i + 1], dict) else str(chat_data.history[i + 1])
+                historico_convertido.append([user_msg, assistant_msg])
+        
+        response = sdr.processar_conversa(chat_data.message, historico_convertido)
+        
+        # Garantir que response é string
+        if not isinstance(response, str):
+            response = str(response) if response is not None else "Erro: resposta vazia"
+        
+        if not response.strip():
+            response = "Desculpe, não consegui processar sua mensagem. Tente novamente."
 
         new_history = chat_data.history + [
             {"role": "user", "content": chat_data.message},
