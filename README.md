@@ -28,7 +28,7 @@ LLM_PROVIDER=gemini
 GEMINI_API_KEY=sua_chave_gemini
 
 # Integrações
-PIPEFY_API_TOKEN=seu_token_pipefy  
+PIPEFY_API_TOKEN=seu_token_pipefy
 CAL_API_TOKEN=seu_token_cal
 PIPEFY_PIPE_ID=seu_pipe_id
 ```
