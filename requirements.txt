@@ -7,3 +7,4 @@ python-dotenv==1.0.0
 huggingface-hub==0.19.4
 httpx==0.24.1
 pytz==2023.3
+ffmpeg-python
