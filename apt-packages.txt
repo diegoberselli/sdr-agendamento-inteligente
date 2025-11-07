@@ -1,3 +1,0 @@
-ffmpeg
-libasound2-dev
-libportaudio2
