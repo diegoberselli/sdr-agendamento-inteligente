@@ -1,6 +1,6 @@
 # SDR Agent - Elite Dev IA
 
-Agente SDR automatizado usando IA Gemini + Gradio que atende leads, conduz conversas naturais e agenda reuniões.
+Agente SDR automatizado usando IA Gemini + FastAPI que atende leads, conduz conversas naturais e agenda reuniões.
 
 ## 🚀 Setup Rápido
 
@@ -22,16 +22,33 @@ pip install -r requirements.txt
 ```
 
 3. **Configurar variáveis (.env):**
-```
-# IA Provider (apenas Gemini)
-LLM_PROVIDER=gemini
-GEMINI_API_KEY=sua_chave_gemini
 
-# Integrações
-PIPEFY_API_TOKEN=seu_token_pipefy
-CAL_API_TOKEN=seu_token_cal
-PIPEFY_PIPE_ID=seu_pipe_id
+**Crie o arquivo `.env` na raiz do projeto:**
+```bash
+# Criar arquivo .env
+touch .env  # Linux/Mac
+# ou criar manualmente no Windows
 ```
+
+**Adicione as seguintes variáveis no arquivo `.env`:**
+```env
+# IA Provider (obrigatório)
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=AIzaSy...  # Sua chave do Google AI Studio
+
+# Integrações CRM (obrigatório)
+PIPEFY_API_TOKEN=eyJhbGc...  # Token da API Pipefy
+PIPEFY_PIPE_ID=123456789    # ID do seu pipe no Pipefy
+
+# Agendamento (obrigatório)
+CAL_API_TOKEN=cal_live_...   # Token da API Cal.com
+```
+
+**📋 Como obter as chaves API:**
+- **Gemini**: https://aistudio.google.com/ → Create API Key
+- **Pipefy**: Settings → Developer → Personal Access Tokens
+- **Cal.com**: Settings → Developer → API Keys
+- **Pipe ID**: URL do Pipefy (ex: pipefy.com/pipes/123456789)
 
 4. **Executar:**
 ```bash
@@ -46,7 +63,7 @@ python app.py
 - ✅ Confirmação de interesse
 - ✅ Agendamento automático de reuniões
 - ✅ Registro no Pipefy com prevenção de duplicatas
-- ✅ Interface responsiva com Gradio
+- ✅ Interface moderna com FastAPI + HTML/CSS/JS
 
 ## 🔧 Fluxo do Agente
 
@@ -88,18 +105,32 @@ python app.py
 
 ## 🚨 Configuração Obrigatória
 
-**Antes de executar, configure no .env:**
-```bash
-# IA (obrigatório)
+**⚠️ IMPORTANTE: O arquivo `.env` deve estar na raiz do projeto e NÃO deve ser commitado no Git.**
+
+**Exemplo completo do arquivo `.env`:**
+```env
+# IA Provider
 LLM_PROVIDER=gemini
-GEMINI_API_KEY=AIza...  # Obter em https://aistudio.google.com/
+GEMINI_API_KEY=AIzaSyDkZ4D33AQ0gtUFmJ9UwtnBJHlg3Pp39ew
 
-# Pipefy (obrigatório)
-PIPEFY_API_TOKEN=eyJ...  # Token de API do Pipefy
-PIPEFY_PIPE_ID=123456   # ID do pipe de pré-vendas
+# Pipefy CRM
+PIPEFY_API_TOKEN=eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJQaXBlZnki...
+PIPEFY_PIPE_ID=306779228
 
-# Cal.com (obrigatório)
-CAL_API_TOKEN=cal_live_...  # Token da API Cal.com
+# Cal.com Scheduling
+CAL_API_TOKEN=cal_live_dc85db69ed3764258b451a4307533f15
+```
+
+**🔑 Onde obter cada chave:**
+1. **GEMINI_API_KEY**: https://aistudio.google.com/ → "Get API key"
+2. **PIPEFY_API_TOKEN**: Pipefy → Settings → Developer → Personal Access Tokens
+3. **PIPEFY_PIPE_ID**: URL do seu pipe (ex: pipefy.com/pipes/306779228)
+4. **CAL_API_TOKEN**: Cal.com → Settings → Developer → API Keys
+
+**✅ Verificação:**
+```bash
+# Testar se as variáveis estão carregadas
+python -c "import os; from dotenv import load_dotenv; load_dotenv(); print('✅ Gemini:', bool(os.getenv('GEMINI_API_KEY')))"
 ```
 
 ## 📊 Dados Coletados
@@ -139,6 +170,9 @@ python -c "from tests import testar_pipefy; testar_pipefy()"
 
 # Testar Cal.com
 python -c "from tests import testar_cal; testar_cal()"
+
+# Testar FastAPI
+curl http://localhost:8000/
 ```
 
 ## 🔧 Troubleshooting
@@ -148,27 +182,37 @@ python -c "from tests import testar_cal; testar_cal()"
 **Erro Pipefy**: Confirme PIPEFY_API_TOKEN e PIPEFY_PIPE_ID
 **Erro Cal.com**: Verifique CAL_API_TOKEN (formato: cal_live_...)
 **Erro 401**: Tokens inválidos ou expirados
+**Erro FastAPI**: Verifique se todas as dependências estão instaladas
+**Erro de Porta**: Use PORT=8000 python app.py para forçar porta
 
 ## 📱 Deploy
 
-**Gradio automático:**
+🌐 **Aplicação disponível em:** https://diegoberselli.onrender.com/
+
+⚠️ **IMPORTANTE:** Este deploy usa as APIs configuradas pelo desenvolvedor. Para uso comercial, configure suas próprias chaves API.
+
+**FastAPI local:**
 ```bash
-python app.py  # Gera link público automaticamente
+python app.py  # Inicia servidor FastAPI
 ```
 
-**Gradio Cloud:**
-```bash
-gradio deploy
-```
+**Render/Heroku:**
+- Faz deploy automático via Git
+- Usa variável PORT do ambiente
+- Configure suas chaves API nas variáveis de ambiente
+- Zero configuração adicional
 
-**Hugging Face Spaces:**
-- Upload arquivos + requirements.txt
-- Configure secrets no HF Spaces
+**Docker:**
+```bash
+docker build -t sdr-agent .
+docker run -p 8000:8000 sdr-agent
+```
 
 ## 🧪 Teste Local
 
-**Interface:** http://localhost:7861
-**Porta:** 7861 (configurável no app.py)
+**Interface:** http://localhost:8000
+**Porta:** 8000 (configurável via PORT env)
+**API Docs:** http://localhost:8000/docs
 
 ## 📁 Estrutura do Projeto
 
@@ -180,7 +224,7 @@ sdr-agent/
 ├── integracoes/
 │   ├── cal_integration.py  # Cal.com API
 │   └── pipefy_real.py      # Pipefy GraphQL
-├── app.py                  # Interface Gradio
+├── app.py                  # Interface FastAPI + HTML
 ├── tests.py               # Testes centralizados
 ├── requirements.txt       # Dependências
 └── .env                   # Configurações
